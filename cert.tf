@@ -1,21 +1,21 @@
 # The entire section create a certiface, public zone, and validate the certificate using DNS method
 
-# Create the certificate using a wildcard for all the domains created in oyindamola.gq
-resource "aws_acm_certificate" "oyindamola" {
-  domain_name       = "*.oyindamola.gq"
+# Create the certificate using a wildcard for all the domains created in yemveiser.online
+resource "aws_acm_certificate" "yemveiser" {
+  domain_name       = "*.yemveiser.online"
   validation_method = "DNS"
 }
 
 # calling the hosted zone
-data "aws_route53_zone" "oyindamola" {
-  name         = "oyindamola.gq"
+data "aws_route53_zone" "yemveiser" {
+  name         = "yemveiser.online"
   private_zone = false
 }
 
 # selecting validation method
-resource "aws_route53_record" "oyindamola" {
+resource "aws_route53_record" "yemveiser" {
   for_each = {
-    for dvo in aws_acm_certificate.oyindamola.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.yemveiser.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -27,19 +27,19 @@ resource "aws_route53_record" "oyindamola" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = data.aws_route53_zone.oyindamola.zone_id
+  zone_id         = data.aws_route53_zone.yemveiser.zone_id
 }
 
 # validate the certificate through DNS method
-resource "aws_acm_certificate_validation" "oyindamola" {
-  certificate_arn         = aws_acm_certificate.oyindamola.arn
-  validation_record_fqdns = [for record in aws_route53_record.oyindamola : record.fqdn]
+resource "aws_acm_certificate_validation" "yemveiser" {
+  certificate_arn         = aws_acm_certificate.yemveiser.arn
+  validation_record_fqdns = [for record in aws_route53_record.yemveiser : record.fqdn]
 }
 
 # create records for tooling
 resource "aws_route53_record" "tooling" {
-  zone_id = data.aws_route53_zone.oyindamola.zone_id
-  name    = "tooling.oyindamola.gq"
+  zone_id = data.aws_route53_zone.yemveiser.zone_id
+  name    = "tooling.yemveiser.online"
   type    = "A"
 
   alias {
@@ -52,8 +52,8 @@ resource "aws_route53_record" "tooling" {
 
 # create records for wordpress
 resource "aws_route53_record" "wordpress" {
-  zone_id = data.aws_route53_zone.oyindamola.zone_id
-  name    = "wordpress.oyindamola.gq"
+  zone_id = data.aws_route53_zone.yemveiser.zone_id
+  name    = "wordpress.yemveiser.online"
   type    = "A"
 
   alias {
